@@ -76,11 +76,20 @@ class RouteFinder:
 		latestEnd=ride[5]
 
 		distToStart=abs(veh.targetX-startX)+abs(veh.targetY-startY)+veh.timeUntilFree
-		return(max(earliestStart,distToStart))
+		distToEnd=abs(endX-startX)+abs(endY-startY)
+
+		return(max(earliestStart,distToStart),distToEnd)
 
 	def journeyCompletionPossible(self, ride, veh):
+		startX=ride[0]
+		startY=ride[1]
+		endX=ride[2]
+		endY=ride[3]
+		earliestStart=ride[4]
+		latestEnd=ride[5]
 
-		pass
+		distToEnd=abs(endX-startX)+abs(endY-startY)
+		distToStart=abs(veh.targetX-startX)+abs(veh.targetY-startY)+veh.timeUntilFree
 
 
 	def assignRide(self,ride,veh,index):
@@ -110,16 +119,21 @@ class RouteFinder:
 				#print("T to free:",veh.timeUntilFree)
 				if veh.timeUntilFree>0:
 					continue
-				minStart=1000000000000000
+				minStart=10000000000000000000000000
+				ride=None
 				for i in range(len(self.rideList)):
-					timeToStart=self.transferCost(self.rideList[i],veh)
+					vals=self.transferCost(self.rideList[i],veh)
+					if (vals[0]+vals[1]+t)>min(self.rideList[i][5],self.steps):
+					 	continue
+					timeToStart=vals[0]
 					if(minStart>timeToStart):
 						ride=self.rideList[i]
 						index=i
 						minStart=timeToStart
 					if(minStart==0):
 						break
-				self.assignRide(ride,veh,index)
+				if ride!=None:
+					self.assignRide(ride,veh,index)
 			for veh in self.vehicleList:
 				veh.iterate()
 
