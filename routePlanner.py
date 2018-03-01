@@ -1,16 +1,26 @@
 import sys
 
-class vehicle:
+class Vehicle:
 
 	def __init__(self):
-		self.locationX=0
-		self.locationY=0
-		self.timeWhenFree=0
+		self.targetX=0
+		self.targetY=0
+		self.timeUntilFree=0
 		self.rideList=[]
 
-	def addRide(self,ride):
-		self.rideList.append(rideno)
+	def addRide(self,ride,rideID):
+		self.rideList.append(rideID)
+		self.timeUntilFree=abs(ride[3]-ride[1])+abs(ride[2]-ride[0])
+		self.targetX=ride[2]
+		self.targetY=ride[3]
 
+	def printRides(self):
+		print(self.rideList)
+		sliceStr = list(map(lambda x: str(x), self.rideList))
+		return(str(len(self.rideList))+" "+" ".join(sliceStr)+"\n")
+
+	def iterate(self):
+		self.timeUntilFree=max(self.timeUntilFree-1,0)
 
 
 
@@ -45,21 +55,18 @@ class RouteFinder:
 		for i in range(0,len(contents)):
 			line=contents[i].strip("\n").split(" ")
 			line = list(map(lambda x: int(x), line))
+			line.append(i)
 			self.rideList.append(line)
 
 		print(self.rideList)
 
 		self.vehicleList=[]
 
-		for i in range(len(self.vehicles)):
+		for i in range(self.vehicles):
+			v=Vehicle()
+			self.vehicleList.append(v)
 
-
-		self.vehicleRides=[[]]
-		self.carLocations=[[]]
-		self.carFree=[]
-
-	def assignRide(self,ride):
-		print(ride)
+	def transferCost(self,ride,veh):
 		startX=ride[0]
 		startY=ride[1]
 		endX=ride[2]
@@ -67,20 +74,63 @@ class RouteFinder:
 		earliestStart=ride[4]
 		latestEnd=ride[5]
 
-		distance=abs(ride[3]-ride[1])+abs(ride[2]-ride[0])
-		print(distance)
+		distToStart=abs(veh.targetX-startX)+abs(veh.targetY-startY)+veh.timeUntilFree
+		return(max(earliestStart,distToStart))
+
+	def journeyCompletionPossible(self, ride, veh):
+
+		pass
+
+
+	def assignRide(self,ride,veh):
+		print(ride)
+		startX=ride[0]
+		startY=ride[1]
+		endX=ride[2]
+		endY=ride[3]
+		earliestStart=ride[4]
+		latestEnd=ride[5]
+		rideID=ride[6]
+
+		self.rides-=1
+		print(ride)
+		self.rideList.remove(ride)
+		veh.addRide(ride,rideID)
+
+
 
 	def assignAllRide(self):
-		for ride in self.rideList:
-			self.assignRide(ride)
+		for t in range(self.steps):
+			print(t)
+			for veh in self.vehicleList:
+				if(len(self.rideList)==0):
+					break
+				print("T to free:",veh.timeUntilFree)
+				if veh.timeUntilFree>0:
+					continue
+				minStart=1000
+				for i in range(len(self.rideList)):
+					timeToStart=self.transferCost(self.rideList[i],veh)
+					if(minStart>timeToStart):
+						ride=self.rideList[i]
+						minStart=timeToStart
+					if(minStart==0):
+						break
+				if ride!=None:
+					self.assignRide(ride,veh)
+			for veh in self.vehicleList:
+				veh.iterate()
+
+		self.printSolution()
+
+		
 
 	def printSolution(self):
 
 		fout=open(sys.argv[1][:-3]+".out",'w+')
 
-		for vehicleRideList in self.vehiclesRides:
-			sliceStr = list(map(lambda x: str(x), vehicleRideList))
-			fout.write(len(vehicleRideList)+" ".join(sliceStr)+"\n")
+		for veh in self.vehicleList:
+			fout.write(veh.printRides())
 
 
 
