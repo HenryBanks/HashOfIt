@@ -58,7 +58,8 @@ class RouteFinder:
 			line.append(i)
 			self.rideList.append(line)
 
-		print(self.rideList)
+		#print(self.rideList[33])
+		#exit(0)
 
 		self.vehicleList=[]
 
@@ -82,7 +83,7 @@ class RouteFinder:
 		pass
 
 
-	def assignRide(self,ride,veh):
+	def assignRide(self,ride,veh,index):
 		print(ride)
 		startX=ride[0]
 		startY=ride[1]
@@ -93,8 +94,9 @@ class RouteFinder:
 		rideID=ride[6]
 
 		self.rides-=1
-		print(ride)
-		self.rideList.remove(ride)
+
+		print(self.rideList.pop(index))
+
 		veh.addRide(ride,rideID)
 
 
@@ -108,16 +110,16 @@ class RouteFinder:
 				print("T to free:",veh.timeUntilFree)
 				if veh.timeUntilFree>0:
 					continue
-				minStart=1000
+				minStart=1000000000000000
 				for i in range(len(self.rideList)):
 					timeToStart=self.transferCost(self.rideList[i],veh)
 					if(minStart>timeToStart):
 						ride=self.rideList[i]
+						index=i
 						minStart=timeToStart
 					if(minStart==0):
 						break
-				if ride!=None:
-					self.assignRide(ride,veh)
+				self.assignRide(ride,veh,index)
 			for veh in self.vehicleList:
 				veh.iterate()
 
