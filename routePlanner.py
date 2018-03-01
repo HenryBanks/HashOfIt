@@ -84,7 +84,7 @@ class RouteFinder:
 
 
 	def assignRide(self,ride,veh,index):
-		print(ride)
+		#print(ride)
 		startX=ride[0]
 		startY=ride[1]
 		endX=ride[2]
@@ -107,7 +107,7 @@ class RouteFinder:
 			for veh in self.vehicleList:
 				if(len(self.rideList)==0):
 					break
-				print("T to free:",veh.timeUntilFree)
+				#print("T to free:",veh.timeUntilFree)
 				if veh.timeUntilFree>0:
 					continue
 				minStart=1000000000000000
