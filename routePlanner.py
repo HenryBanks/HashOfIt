@@ -1,4 +1,5 @@
 import sys
+import math
 
 class Vehicle:
 
@@ -52,11 +53,32 @@ class RouteFinder:
 
 		self.rideList=[]
 
+		self.averageStartX=0
+		self.averageStartY=0
+
+		self.sumXsquared=0
+		self.sumYsquared=0
+
 		for i in range(0,len(contents)):
 			line=contents[i].strip("\n").split(" ")
 			line = list(map(lambda x: int(x), line))
 			line.append(i)
+			self.averageStartX+=line[0]
+			self.averageStartY+=line[1]
+			self.sumXsquared+=line[0]*line[0]
+			self.sumYsquared+=line[1]*line[1]
 			self.rideList.append(line)
+
+		self.averageStartX=self.averageStartX/self.rides
+		self.averageStartY=self.averageStartY/self.rides
+
+		self.sumXsquared=self.sumXsquared/self.rides
+		self.sumYsquared=self.sumYsquared/self.rides
+
+		self.stdX=math.sqrt(self.sumXsquared-self.averageStartX*self.averageStartX)
+		self.stdY=math.sqrt(self.sumYsquared-self.averageStartY*self.averageStartY)
+
+		print(self.averageStartX,self.averageStartY,self.stdX,self.stdY)
 
 		#print(self.rideList[33])
 		#exit(0)
@@ -78,7 +100,13 @@ class RouteFinder:
 		distToStart=abs(veh.targetX-startX)+abs(veh.targetY-startY)+veh.timeUntilFree
 		distToEnd=abs(endX-startX)+abs(endY-startY)
 
-		return(max(earliestStart,distToStart),distToEnd)
+		close=True
+		if endX>self.averageStartX+3*self.stdX or endX<self.averageStartX-3*self.stdX:
+			close=False
+		if endY>self.averageStartY+3*self.stdY or endY<self.averageStartY-3*self.stdY:
+			close=False
+
+		return(max(earliestStart,distToStart),close)
 
 	def journeyCompletionPossible(self, ride, veh):
 		startX=ride[0]
@@ -123,8 +151,8 @@ class RouteFinder:
 				ride=None
 				for i in range(len(self.rideList)):
 					vals=self.transferCost(self.rideList[i],veh)
-					if (vals[0]+vals[1]+t)>min(self.rideList[i][5],self.steps):
-					 	continue
+					#if (not vals[1]):
+					# 	continue
 					timeToStart=vals[0]
 					if(minStart>timeToStart):
 						ride=self.rideList[i]
